@@ -3,6 +3,9 @@ package ar.edu.unahur.obj2.semillasAlViento
 abstract class Planta(val anioObtencionSemilla: Int, var altura: Float) {
   fun esFuerte() = this.horasDeSolQueTolera() > 10
 
+///////////////
+// cohesion. esta funcion deberia ser de parcela, y no de planta
+///////////////
   fun parcelaTieneComplicaciones(parcela: Parcela) =
     parcela.plantas.any { it.horasDeSolQueTolera() < parcela.horasSolPorDia }
 
@@ -15,6 +18,9 @@ class Menta(anioObtencionSemilla: Int, altura: Float) : Planta(anioObtencionSemi
   override fun daSemillas() = this.esFuerte() || altura > 0.4
 }
 
+///////////////
+// desacoplamiento y flexibilidad. se podria separar la soja transgenica en una subclase
+///////////////
 class Soja(anioObtencionSemilla: Int, altura: Float, val esTransgenica: Boolean) : Planta(anioObtencionSemilla, altura) {
   override fun horasDeSolQueTolera(): Int  {
     // ¡Magia de Kotlin! El `when` es como un `if` pero más poderoso:
@@ -27,7 +33,6 @@ class Soja(anioObtencionSemilla: Int, altura: Float, val esTransgenica: Boolean)
 
     return if (esTransgenica) horasBase * 2 else horasBase
   }
-
 
   override fun daSemillas(): Boolean  {
     if (this.esTransgenica) {
