@@ -3,6 +3,8 @@ package ar.edu.unahur.obj2.semillasAlViento
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 
 class SemillasTest : DescribeSpec ({
@@ -12,7 +14,8 @@ class SemillasTest : DescribeSpec ({
         val menta1 = Menta(2001, 0.5f)
         val parcela1 = Parcela(3, 3, 7)
         val parcela2 = Parcela(5, 2, 2)
-        val agricultora = Agricultora(mutableListOf(parcela1, parcela2))
+        val parcela3 = Parcela(4, 4, 9)
+        val agricultora = Agricultora(mutableListOf(parcela1, parcela2, parcela3))
 
         describe("test de plantas") {
             describe("menta") {
@@ -26,7 +29,7 @@ class SemillasTest : DescribeSpec ({
                     menta1.daSemillas().shouldBeTrue()
                 }
             }
-            describe("soja transgenica") {
+            describe("soja transgénica") {
                 it("horas de sol que tolera") {
                     soja1.horasDeSolQueTolera().shouldBe(18)
                 }
@@ -37,7 +40,7 @@ class SemillasTest : DescribeSpec ({
                     soja1.daSemillas().shouldBeFalse()
                 }
             }
-            describe("soja organica") {
+            describe("soja orgánica") {
                 it("horas de sol que tolera") {
                     soja2.horasDeSolQueTolera().shouldBe(7)
                 }
@@ -60,7 +63,6 @@ class SemillasTest : DescribeSpec ({
                 }
 
             }
-
             describe("otra parcela") {
                 it("superficie") {
                     parcela2.superficie().shouldBe(10)
@@ -69,7 +71,38 @@ class SemillasTest : DescribeSpec ({
                     parcela2.cantidadMaximaPlantas().shouldBe(2)
                 }
             }
+            describe("una parcela con sus plantas") {
+                it("plantar") {
+                    parcela1.plantar(soja1)
+                    parcela1.plantar(menta1)
+                    parcela1.plantas.shouldContain(soja1)
+                    parcela1.plantas.shouldContain(menta1)
+                }
+                /*it("tieneComplicaciones") {
+                    parcela1.tieneComplicaciones().shouldBeFalse()
+                } Comentado para que compilen los tests. */
+            }
+            describe("otra parcela con sus plantas") {
+                it("plantar") {
+                    parcela3.plantar(menta1)
+                    parcela3.plantas.shouldNotContain(menta1)
+                }
+                /*it("tieneComplicaciones") {
+                    parcela3.tieneComplicaciones().shouldBeTrue()
+                } Comentado para que compilen los tests. */
+            }
         }
 
+        describe("test de agricultora") {
+            describe("una agricultura") {
+                it("parcelasSemilleras") {
+                    agricultora.parcelasSemilleras().shouldContain(parcela1)
+                }
+                it("plantarEstrategicamente") {
+                    agricultora.plantarEstrategicamente(soja1)
+                    parcela3.plantas.shouldContain(soja1)
+                }
+            }
+        }
     }
 })
