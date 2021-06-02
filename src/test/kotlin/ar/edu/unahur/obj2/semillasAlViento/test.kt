@@ -1,11 +1,15 @@
 package ar.edu.unahur.obj2.semillasAlViento
 
+import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNot
 
 class SemillasTest : DescribeSpec ({
     describe("Semillas test") {
@@ -15,7 +19,9 @@ class SemillasTest : DescribeSpec ({
         val parcela1 = Parcela(3, 3, 7)
         val parcela2 = Parcela(5, 2, 2)
         val parcela3 = Parcela(4, 4, 9)
-        val agricultora = Agricultora(mutableListOf(parcela1, parcela2, parcela3))
+        val parcela4 = Parcela(5, 3, 9)
+        val agricultora1 = Agricultora(mutableListOf(parcela1, parcela2, parcela3))
+        val agricultora2 = Agricultora(mutableListOf(parcela2, parcela4))
 
         describe("test de plantas") {
             describe("menta") {
@@ -72,35 +78,46 @@ class SemillasTest : DescribeSpec ({
                 }
             }
             describe("una parcela con sus plantas") {
+                parcela1.plantar(sojaTransgenica1)
+                parcela1.plantar(menta1)
                 it("plantar") {
-                    parcela1.plantar(sojaTransgenica1)
-                    parcela1.plantar(menta1)
                     parcela1.plantas.shouldContain(sojaTransgenica1)
                     parcela1.plantas.shouldContain(menta1)
                 }
-                it("tieneComplicaciones") {
-                    parcela1.tieneComplicaciones().shouldBeFalse()
+                it("tiene Complicaciones") {
+                    parcela1.tieneComplicaciones().shouldBeTrue()
                 }
             }
             describe("otra parcela con sus plantas") {
                 it("plantar") {
-                    parcela3.plantar(menta1)
+                    shouldThrowAny { parcela3.plantar(menta1) }
                     parcela3.plantas.shouldNotContain(menta1)
                 }
-                it("tieneComplicaciones") {
-                    parcela3.tieneComplicaciones().shouldBeFalse() // Nunca debería haber sido true porque
-                }                                                  // la menta nunca fue plantada en primer lugar.
+                it("tiene Complicaciones") {
+                    parcela3.tieneComplicaciones().shouldBeFalse()
+                }
             }
         }
 
         describe("test de agricultora") {
-            describe("una agricultura") {
-                it("parcelasSemilleras") {
-                    agricultora.parcelasSemilleras().shouldContain(parcela1)
-                }
+            describe("una agricultora") {
+                agricultora1.plantarEstrategicamente(sojaTransgenica1)
                 it("plantarEstratégicamente") {
-                    agricultora.plantarEstrategicamente(sojaTransgenica1)
                     parcela3.plantas.shouldContain(sojaTransgenica1)
+                }
+                it("parcelasSemilleras") {
+                    agricultora1.parcelasSemilleras().shouldBeEmpty()
+                }
+            }
+            describe("Otra agricultora") {
+                agricultora2.plantarEstrategicamente(menta1)
+                agricultora2.plantarEstrategicamente(sojaTransgenica1)
+                it("plantar Estrategicamente respetando las restricciones") {
+                    parcela4.plantas.shouldNotContain(menta1)
+                    parcela4.plantas.shouldContain(sojaTransgenica1)
+                }
+                it("parcelas semilleras") {
+                    agricultora2.parcelasSemilleras().shouldBe(listOf(parcela2))
                 }
             }
         }

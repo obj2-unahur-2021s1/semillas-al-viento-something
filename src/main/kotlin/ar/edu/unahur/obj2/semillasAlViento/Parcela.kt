@@ -9,31 +9,30 @@ class Parcela(val ancho: Int, val largo: Int, val horasSolPorDia: Int) {
 
   fun tieneComplicaciones() = plantas.any { it.horasDeSolQueTolera() < horasSolPorDia }
 
-///////////////
-// Desacoplamiento, seria mejor crear otra funcion que verifique si puede plantar y se podria reutilizar
-///////////////
+  fun puedePlantar(planta: Planta) =
+    plantas.size < this.cantidadMaximaPlantas()
+    && horasSolPorDia <= planta.horasDeSolQueTolera() + 2
 
   fun plantar(planta: Planta) {
-    if (plantas.size == this.cantidadMaximaPlantas()) {
-      println("Ya no hay lugar en esta parcela")
-    } else if (horasSolPorDia > planta.horasDeSolQueTolera() + 2) {
-      println("No se puede plantar esto acá, se va a quemar")
-    } else {
-      plantas.add(planta)
-    }
+    if (this.puedePlantar(planta)) plantas.add(planta)
+    else throw Exception("Ya no hay lugar en esta parcela o la planta se va a quemar")
   }
 
-  fun esSemillera() = plantas.all { it.daSemillas() }
+  fun esSemillera() = plantas.isNotEmpty() && plantas.all { it.daSemillas() }
+
+  fun espacioLibre() = this.cantidadMaximaPlantas() - this.plantas.size
 }
 
 class Agricultora(val parcelas: MutableList<Parcela>) {
   fun parcelasSemilleras() = parcelas.filter { it.esSemillera() }
 
-///////////////
-// abstraccion, reusabilidad. aqui se podria reutilizar la funcion que verifica las condiciones de plantar
-///////////////
+  fun plantarEstrategicamente(planta: Planta) =
+    parcelaConMasLugarPara(planta).plantar(planta)
 
-  fun plantarEstrategicamente(planta: Planta) { parcelaConMasLugar().plantar(planta) }
+  fun parcelaConMasLugarPara(planta : Planta) =
+    this.parcelasQuePuedePlantar(planta).maxBy { it.espacioLibre() }!!
 
-  fun parcelaConMasLugar() = parcelas.maxBy { it.cantidadMaximaPlantas() - it.plantas.size }!!
+  fun parcelasQuePuedePlantar(planta: Planta) =
+    parcelas.filter { it.puedePlantar(planta) }
 }
+
